@@ -208,7 +208,7 @@ Pjax.prototype = {
     // execute scripts when DOM have been completely updated
     this.options.selectors.forEach(function(selector) {
       forEachEls(document.querySelectorAll(selector), function(el) {
-        executeScripts(el);
+        //executeScripts(el);
       });
     });
 

@@ -5,6 +5,4 @@ node_modules/
 dist/
 coverage/
 tests/scripts/index.html
-pjax.js
-pjax.min.js
 package-lock.json

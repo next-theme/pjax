@@ -207,9 +207,10 @@ Pjax.prototype = {
 
     // execute scripts when DOM have been completely updated
     this.options.selectors.forEach(function(selector) {
-      // forEachEls(document.querySelectorAll(selector), function(el) {
-      //   // executeScripts(el);
-      // });
+      forEachEls(document.querySelectorAll(selector), function(el) {
+        // executeScripts(el);
+        if (el === 0) ;  // intentially left blank!
+      });
     });
 
     var state = this.state;

@@ -1,4 +1,4 @@
-var executeScripts = require("./lib/execute-scripts");
+// var executeScripts = require("./lib/execute-scripts");  // unused-var
 var forEachEls = require("./lib/foreach-els");
 var parseOptions = require("./lib/parse-options");
 var switches = require("./lib/switches");
@@ -207,9 +207,9 @@ Pjax.prototype = {
 
     // execute scripts when DOM have been completely updated
     this.options.selectors.forEach(function(selector) {
-      forEachEls(document.querySelectorAll(selector), function(el) {
-        //executeScripts(el);
-      });
+      // forEachEls(document.querySelectorAll(selector), function(el) {
+      //   // executeScripts(el);
+      // });
     });
 
     var state = this.state;

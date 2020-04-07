@@ -19,7 +19,7 @@ _config.yml  crowdin.yml  docs  gulpfile.js  languages  layout  LICENSE.md  pack
 Install module to `source/lib` directory:
 
 ```sh
-$ git clone https://github.com/theme-next/theme-next-pjax source/lib/pjax
+$ git clone https://github.com/hexo-next/pjax source/lib/pjax
 ```
 
 <h2 align="center">Step 3 &rarr; Set it up</h2>
@@ -35,7 +35,7 @@ pjax: true
 ```yml
 vendors:
   ...
-  pjax: //cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js
+  pjax: //cdn.jsdelivr.net/gh/hexo-next/pjax@0/pjax.min.js
 ```
 
 <h1 align="center">Update</h1>

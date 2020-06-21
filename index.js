@@ -1,4 +1,4 @@
-var executeScripts = require("./lib/execute-scripts");
+// var executeScripts = require("./lib/execute-scripts");  // unused-var
 var forEachEls = require("./lib/foreach-els");
 var parseOptions = require("./lib/parse-options");
 var switches = require("./lib/switches");
@@ -192,6 +192,34 @@ Pjax.prototype = {
     );
   },
 
+  executeScripts: function(elements) {
+    elements.forEach(function(element) {
+      var code = element.text || element.textContent || element.innerHTML || '';
+      var script = document.createElement('script');
+      if (element.id) {
+        script.id = element.id;
+      }
+      if (element.className) {
+        script.className = element.className;
+      }
+      if (element.type) {
+        script.type = element.type;
+      }
+      if (element.src) {
+        script.src = element.src;
+        // Force synchronous loading of peripheral JS.
+        script.async = false;
+      }
+      if (element.dataset.pjax !== undefined) {
+        script.dataset.pjax = '';
+      }
+      if (code !== '') {
+        script.appendChild(document.createTextNode(code));
+      }
+      element.parentNode.replaceChild(script, element);
+    });
+  },
+
   afterAllSwitches: function() {
     // FF bug: Won’t autofocus fields that are inserted via JS.
     // This behavior is incorrect. So if theres no current focus, autofocus
@@ -208,7 +236,8 @@ Pjax.prototype = {
     // execute scripts when DOM have been completely updated
     this.options.selectors.forEach(function(selector) {
       forEachEls(document.querySelectorAll(selector), function(el) {
-        executeScripts(el);
+        // executeScripts(el);
+        if (el === 0) ;  // intentially left blank!
       });
     });
 

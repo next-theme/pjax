@@ -1,5 +1,5 @@
 {
-  "name": "pjax",
+  "name": "@next-theme/pjax",
   "version": "0.4.0",
   "description": "Easily enable fast AJAX navigation on any website (using pushState + XHR)",
   "keywords": [
@@ -27,22 +27,22 @@
   ],
   "types": "index.d.ts",
   "devDependencies": {
-    "browserify": "^15.0.0",
-    "eslint": "^5.7.0",
-    "eslint-config-i-am-meticulous": "^11.0.0",
-    "husky": "^1.2.0",
-    "jsdom": "^11.5.1",
+    "browserify": "^16.5.1",
+    "eslint": "^7.6.0",
+    "eslint-config-i-am-meticulous": "^12.0.0",
+    "husky": "^4.2.5",
+    "jsdom": "^16.3.0",
     "jsdom-global": "^3.0.2",
-    "lint-staged": "^8.1.0",
-    "npmpub": "^3.1.0",
-    "nyc": "^11.4.1",
-    "opn-cli": "^3.1.0",
-    "prettier": "^1.14.3",
-    "serve": "^6.4.4",
+    "lint-staged": "^10.2.11",
+    "npmpub": "^5.0.0",
+    "nyc": "^15.1.0",
+    "opn-cli": "^5.0.0",
+    "prettier": "^2.0.5",
+    "serve": "^11.3.2",
     "tap-nyc": "^1.0.3",
-    "tap-spec": "^4.1.1",
-    "tape": "^4.8.0",
-    "uglify-js": "^3.3.8"
+    "tap-spec": "^5.0.0",
+    "tape": "^5.0.1",
+    "uglify-js": "^3.10.0"
   },
   "scripts": {
     "lint": "eslint .",

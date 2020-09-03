@@ -1013,7 +1013,7 @@ module.exports = {
     if (newEl.className === "") {
       oldEl.removeAttribute("class");
     } else {
-      //oldEl.className = newEl.className;
+      oldEl.className = newEl.className;
     }
 
     this.onSwitch();

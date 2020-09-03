@@ -27,22 +27,22 @@
   ],
   "types": "index.d.ts",
   "devDependencies": {
-    "browserify": "^16.5.1",
-    "eslint": "^7.6.0",
+    "browserify": "^16.5.2",
+    "eslint": "^7.8.1",
     "eslint-config-i-am-meticulous": "^12.0.0",
     "husky": "^4.2.5",
-    "jsdom": "^16.3.0",
+    "jsdom": "^16.4.0",
     "jsdom-global": "^3.0.2",
-    "lint-staged": "^10.2.11",
+    "lint-staged": "^10.3.0",
     "npmpub": "^5.0.0",
     "nyc": "^15.1.0",
     "opn-cli": "^5.0.0",
-    "prettier": "^2.0.5",
+    "prettier": "^2.1.1",
     "serve": "^11.3.2",
     "tap-nyc": "^1.0.3",
     "tap-spec": "^5.0.0",
     "tape": "^5.0.1",
-    "uglify-js": "^3.10.0"
+    "uglify-js": "^3.10.3"
   },
   "scripts": {
     "lint": "eslint .",

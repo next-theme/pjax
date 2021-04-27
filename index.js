@@ -24,6 +24,13 @@ var Pjax = function(options) {
 
   if (this.options.scrollRestoration && "scrollRestoration" in history) {
     history.scrollRestoration = "manual";
+    on(
+      window,
+      "beforeunload",
+      function() {
+        history.scrollRestoration = "auto";
+      }
+    );
   }
 
   this.maxUid = this.lastUid = newUid();

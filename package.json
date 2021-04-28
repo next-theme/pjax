@@ -1,6 +1,6 @@
 {
   "name": "@next-theme/pjax",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Easily enable fast AJAX navigation on any website (using pushState + XHR)",
   "keywords": [
     "pjax",

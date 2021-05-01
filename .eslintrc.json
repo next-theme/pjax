@@ -1,8 +1,4 @@
 {
-  "extends": ["eslint-config-i-am-meticulous/es5"],
-  "rules": {
-    "import/order": "off",
-    "import/max-dependencies": "off",
-    "import/extensions": ["error", "never"]
-  }
+  "extends": "@next-theme",
+  "root": true
 }

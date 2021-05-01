@@ -200,7 +200,7 @@ Pjax.prototype = {
     );
   },
 
-  executeScripts: () => {},
+  executeScripts: executeScripts,
 
   afterAllSwitches: function() {
     // FF bug: Won’t autofocus fields that are inserted via JS.
@@ -213,11 +213,26 @@ Pjax.prototype = {
       autofocusEl.focus();
     }
 
-    // Execute scripts when DOM have been completely updated
-    const selector = [...this.options.selectors, 'script[data-pjax]'].join();
-    document.querySelectorAll(selector).forEach(element => {
-      executeScripts(element);
+    // Execute scripts in document order when DOM have been completely updated
+    const scripts = [...document.querySelectorAll('script[data-pjax]')];
+    this.options.selectors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(element => {
+        element.querySelectorAll('script').forEach(script => {
+          if (scripts.includes(script)) return;
+          scripts.push(script);
+        });
+      });
     });
+    // Sort by document position.
+    // https://stackoverflow.com/a/22613028
+    scripts.sort((a, b) => {
+      // Bitwise AND is required here.
+      if (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_PRECEDING) {
+        return 1;
+      }
+      return -1;
+    });
+    executeScripts(scripts).catch(() => {});
 
     const state = this.state;
 

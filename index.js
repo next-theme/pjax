@@ -10,7 +10,6 @@ var trigger = require("./lib/events/trigger");
 var clone = require("./lib/util/clone");
 var contains = require("./lib/util/contains");
 var extend = require("./lib/util/extend");
-var noop = require("./lib/util/noop");
 
 var Pjax = function(options) {
   this.state = {
@@ -332,23 +331,4 @@ Pjax.prototype = {
   }
 };
 
-Pjax.isSupported = require("./lib/is-supported");
-
-// arguably could do `if( require("./lib/is-supported")()) {` but that might be a little to simple
-if (Pjax.isSupported()) {
-  module.exports = Pjax;
-}
-// if there isn’t required browser functions, returning stupid api
-else {
-  var stupidPjax = noop;
-  for (var key in Pjax.prototype) {
-    if (
-      Pjax.prototype.hasOwnProperty(key) &&
-      typeof Pjax.prototype[key] === "function"
-    ) {
-      stupidPjax[key] = noop;
-    }
-  }
-
-  module.exports = stupidPjax;
-}
+module.exports = Pjax;

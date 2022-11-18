@@ -27,7 +27,8 @@
   ],
   "types": "index.d.ts",
   "devDependencies": {
-    "browserify": "^16.5.2",
+    "@rollup/plugin-commonjs": "^23.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.1",
     "eslint": "^7.9.0",
     "eslint-config-i-am-meticulous": "^12.0.0",
     "husky": "^4.3.0",
@@ -38,16 +39,17 @@
     "nyc": "^15.1.0",
     "opn-cli": "^5.0.0",
     "prettier": "^2.1.1",
+    "rollup": "^3.3.0",
     "serve": "^11.3.2",
     "tap-nyc": "^1.0.3",
     "tap-spec": "^5.0.0",
     "tape": "^5.0.1",
-    "uglify-js": "^3.10.4"
+    "terser": "^5.15.1"
   },
   "scripts": {
     "lint": "eslint .",
-    "standalone": "browserify index.js --standalone Pjax > pjax.js",
-    "build": "npm run standalone && uglifyjs pjax.js -o pjax.min.js",
+    "standalone": "rollup -c rollup.config.mjs -f iife > pjax.js",
+    "build": "npm run standalone && terser pjax.js -c -m > pjax.min.js",
     "build-debug": "browserify index.js --debug --standalone Pjax > pjax.js",
     "tests": "tape -r ./tests/setup.js \"./tests/**/*.js\"",
     "test": "npm run lint && npm run tests | tap-spec",

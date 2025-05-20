@@ -1,103 +1,102 @@
 // var executeScripts = require("./lib/execute-scripts");  // unused-var
-var forEachEls = require("./lib/foreach-els");
-var parseOptions = require("./lib/parse-options");
-var switches = require("./lib/switches");
-var newUid = require("./lib/uniqueid");
+import forEachEls from "./lib/foreach-els";
 
-var on = require("./lib/events/on");
-var trigger = require("./lib/events/trigger");
+import parseOptions from "./lib/parse-options";
+import switches from "./lib/switches";
+import newUid from "./lib/uniqueid";
+import on from "./lib/events/on";
+import trigger from "./lib/events/trigger";
+import clone from "./lib/util/clone";
+import contains from "./lib/util/contains";
+import extend from "./lib/util/extend";
+import parseElement from "./lib/proto/parse-element";
+import attachLink from "./lib/proto/attach-link";
+import attachForm from "./lib/proto/attach-form";
+import foreachSelectors from "./lib/foreach-selectors";
+import switchesSelectors from "./lib/switches-selectors";
+import log from "./lib/proto/log";
+import abortRequest from "./lib/abort-request";
+import doRequest from "./lib/send-request";
+import handleResponse from "./lib/proto/handle-response";
 
-var clone = require("./lib/util/clone");
-var contains = require("./lib/util/contains");
-var extend = require("./lib/util/extend");
+class Pjax {
+  constructor(options) {
+    this.state = {
+      numPendingSwitches: 0,
+      href: null,
+      options: null
+    };
 
-var Pjax = function(options) {
-  this.state = {
-    numPendingSwitches: 0,
-    href: null,
-    options: null
-  };
+    this.options = parseOptions(options);
+    this.log("Pjax options", this.options);
 
-  this.options = parseOptions(options);
-  this.log("Pjax options", this.options);
+    if (this.options.scrollRestoration && "scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+      on(
+        window,
+        "beforeunload",
+        function() {
+          history.scrollRestoration = "auto";
+        }
+      );
+    }
 
-  if (this.options.scrollRestoration && "scrollRestoration" in history) {
-    history.scrollRestoration = "manual";
+    this.maxUid = this.lastUid = newUid();
+
+    this.parseDOM(document);
+
     on(
       window,
-      "beforeunload",
-      function() {
-        history.scrollRestoration = "auto";
-      }
+      "popstate",
+      function(st) {
+        if (st.state) {
+          const opt = clone(this.options);
+          opt.url = st.state.url;
+          opt.title = st.state.title;
+          // Since state already exists, prevent it from being pushed again
+          opt.history = false;
+          opt.scrollPos = st.state.scrollPos;
+          if (st.state.uid < this.lastUid) {
+            opt.backward = true;
+          } else {
+            opt.forward = true;
+          }
+          this.lastUid = st.state.uid;
+
+          // @todo implement history cache here, based on uid
+          this.loadUrl(st.state.url, opt);
+        }
+      }.bind(this)
     );
   }
 
-  this.maxUid = this.lastUid = newUid();
-
-  this.parseDOM(document);
-
-  on(
-    window,
-    "popstate",
-    function(st) {
-      if (st.state) {
-        var opt = clone(this.options);
-        opt.url = st.state.url;
-        opt.title = st.state.title;
-        // Since state already exists, prevent it from being pushed again
-        opt.history = false;
-        opt.scrollPos = st.state.scrollPos;
-        if (st.state.uid < this.lastUid) {
-          opt.backward = true;
-        } else {
-          opt.forward = true;
-        }
-        this.lastUid = st.state.uid;
-
-        // @todo implement history cache here, based on uid
-        this.loadUrl(st.state.url, opt);
-      }
-    }.bind(this)
-  );
-};
-
-Pjax.switches = switches;
-
-Pjax.prototype = {
-  log: require("./lib/proto/log"),
-
-  getElements: function(el) {
+  getElements(el) {
     return el.querySelectorAll(this.options.elements);
-  },
+  }
 
-  parseDOM: function(el) {
-    var parseElement = require("./lib/proto/parse-element");
+  parseDOM(el) {
     forEachEls(this.getElements(el), parseElement, this);
-  },
+  }
 
-  refresh: function(el) {
+  refresh(el) {
     this.parseDOM(el || document);
-  },
+  }
 
-  reload: function() {
+  reload() {
     window.location.reload();
-  },
+  }
 
-  attachLink: require("./lib/proto/attach-link"),
-
-  attachForm: require("./lib/proto/attach-form"),
-
-  forEachSelectors: function(cb, context, DOMcontext) {
-    return require("./lib/foreach-selectors").bind(this)(
+  forEachSelectors(cb, context, DOMcontext) {
+    return foreachSelectors.bind(this)(
       this.options.selectors,
       cb,
       context,
       DOMcontext
     );
-  },
+  }
 
-  switchSelectors: function(selectors, fromEl, toEl, options) {
-    return require("./lib/switches-selectors").bind(this)(
+  switchSelectors(selectors, fromEl, toEl, options) {
+    return switchesSelectors.bind(this)(
       this.options.switches,
       this.options.switchesOptions,
       selectors,
@@ -105,13 +104,13 @@ Pjax.prototype = {
       toEl,
       options
     );
-  },
+  }
 
-  latestChance: function(href) {
+  latestChance(href) {
     window.location = href;
-  },
+  }
 
-  onSwitch: function() {
+  onSwitch() {
     trigger(window, "resize scroll");
 
     this.state.numPendingSwitches--;
@@ -120,28 +119,28 @@ Pjax.prototype = {
     if (this.state.numPendingSwitches === 0) {
       this.afterAllSwitches();
     }
-  },
+  }
 
-  loadContent: function(html, options) {
+  loadContent(html, options) {
     if (typeof html !== "string") {
       trigger(document, "pjax:complete pjax:error", options);
 
       return;
     }
 
-    var tmpEl = document.implementation.createHTMLDocument("pjax");
+    const tmpEl = document.implementation.createHTMLDocument("pjax");
 
     // parse HTML attributes to copy them
     // since we are forced to use documentElement.innerHTML (outerHTML can't be used for <html>)
-    var htmlRegex = /<html[^>]+>/gi;
-    var htmlAttribsRegex = /\s?[a-z:]+(?:=['"][^'">]+['"])*/gi;
-    var matches = html.match(htmlRegex);
+    const htmlRegex = /<html[^>]+>/gi;
+    const htmlAttribsRegex = /\s?[a-z:]+(?:=['"][^'">]+['"])*/gi;
+    let matches = html.match(htmlRegex);
     if (matches && matches.length) {
       matches = matches[0].match(htmlAttribsRegex);
       if (matches.length) {
         matches.shift();
         matches.forEach(function(htmlAttrib) {
-          var attr = htmlAttrib.trim().split("=");
+          const attr = htmlAttrib.trim().split("=");
           if (attr.length === 1) {
             tmpEl.documentElement.setAttribute(attr[0], true);
           } else {
@@ -169,15 +168,9 @@ Pjax.prototype = {
     }
 
     this.switchSelectors(this.options.selectors, tmpEl, document, options);
-  },
+  }
 
-  abortRequest: require("./lib/abort-request"),
-
-  doRequest: require("./lib/send-request"),
-
-  handleResponse: require("./lib/proto/handle-response"),
-
-  loadUrl: function(href, options) {
+  loadUrl(href, options) {
     options =
       typeof options === "object"
         ? extend({}, this.options, options)
@@ -196,12 +189,12 @@ Pjax.prototype = {
       options,
       this.handleResponse.bind(this)
     );
-  },
+  }
 
-  executeScripts: function(elements) {
+  executeScripts(elements) {
     elements.forEach(function(element) {
-      var code = element.text || element.textContent || element.innerHTML || '';
-      var script = document.createElement('script');
+      const code = element.text || element.textContent || element.innerHTML || '';
+      const script = document.createElement('script');
       if (element.id) {
         script.id = element.id;
       }
@@ -224,15 +217,15 @@ Pjax.prototype = {
       }
       element.parentNode.replaceChild(script, element);
     });
-  },
+  }
 
-  afterAllSwitches: function() {
+  afterAllSwitches() {
     // FF bug: Won’t autofocus fields that are inserted via JS.
     // This behavior is incorrect. So if theres no current focus, autofocus
     // the last field.
     //
     // http://www.w3.org/html/wg/drafts/html/master/forms.html
-    var autofocusEl = Array.prototype.slice
+    const autofocusEl = Array.prototype.slice
       .call(document.querySelectorAll("[autofocus]"))
       .pop();
     if (autofocusEl && document.activeElement !== autofocusEl) {
@@ -247,7 +240,7 @@ Pjax.prototype = {
       });
     });
 
-    var state = this.state;
+    const state = this.state;
 
     if (state.options.history) {
       if (!window.history.state) {
@@ -291,14 +284,14 @@ Pjax.prototype = {
 
     if (state.options.history) {
       // First parse url and check for hash to override scroll
-      var a = document.createElement("a");
+      const a = document.createElement("a");
       a.href = this.state.href;
       if (a.hash) {
-        var name = a.hash.slice(1);
+        let name = a.hash.slice(1);
         name = decodeURIComponent(name);
 
-        var curtop = 0;
-        var target =
+        let curtop = 0;
+        let target =
           document.getElementById(name) || document.getElementsByName(name)[0];
         if (target) {
           // http://stackoverflow.com/questions/8111094/cross-browser-javascript-function-to-find-actual-position-of-an-element-in-page
@@ -329,6 +322,14 @@ Pjax.prototype = {
       options: null
     };
   }
-};
+}
 
-module.exports = Pjax;
+Pjax.switches = switches;
+Pjax.prototype.log = log;
+Pjax.prototype.attachLink = attachLink;
+Pjax.prototype.attachForm = attachForm;
+Pjax.prototype.abortRequest = abortRequest;
+Pjax.prototype.doRequest = doRequest;
+Pjax.prototype.handleResponse = handleResponse;
+
+export default Pjax;

@@ -6,9 +6,6 @@ import switches from "./lib/switches";
 import newUid from "./lib/uniqueid";
 import on from "./lib/events/on";
 import trigger from "./lib/events/trigger";
-import clone from "./lib/util/clone";
-import contains from "./lib/util/contains";
-import extend from "./lib/util/extend";
 import parseElement from "./lib/proto/parse-element";
 import attachLink from "./lib/proto/attach-link";
 import attachForm from "./lib/proto/attach-form";
@@ -50,7 +47,7 @@ class Pjax {
       "popstate",
       function(st) {
         if (st.state) {
-          const opt = clone(this.options);
+          const opt = { ...this.options };
           opt.url = st.state.url;
           opt.title = st.state.title;
           // Since state already exists, prevent it from being pushed again
@@ -160,7 +157,7 @@ class Pjax {
     // Clear out any focused controls before inserting new page contents.
     if (
       document.activeElement &&
-      contains(document, this.options.selectors, document.activeElement)
+      this.options.selectors.some(selector => document.activeElement.closest(selector) !== null)
     ) {
       try {
         document.activeElement.blur();
@@ -173,8 +170,8 @@ class Pjax {
   loadUrl(href, options) {
     options =
       typeof options === "object"
-        ? extend({}, this.options, options)
-        : clone(this.options);
+        ? { ...this.options, ...options }
+        : { ...this.options };
 
     this.log("load href", href, options);
 
@@ -225,8 +222,7 @@ class Pjax {
     // the last field.
     //
     // http://www.w3.org/html/wg/drafts/html/master/forms.html
-    const autofocusEl = Array.prototype.slice
-      .call(document.querySelectorAll("[autofocus]"))
+    const autofocusEl = Array.from(document.querySelectorAll("[autofocus]"))
       .pop();
     if (autofocusEl && document.activeElement !== autofocusEl) {
       autofocusEl.focus();

@@ -1,10 +1,9 @@
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-
 export default {
   input: 'index.js',
   output: {
-    name: 'Pjax'
+    name: 'Pjax',
+    format: 'iife',
+    file: 'pjax.js'
   },
-  plugins: [resolve(), commonjs()]
+  plugins: []
 };
